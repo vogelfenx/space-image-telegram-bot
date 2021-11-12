@@ -22,11 +22,6 @@ def get_filename_from_url(url):
 
 
 def fetch_nasa_epic_images():
-    # sample(range(0, 101, 1), 10)
-    # https://api.nasa.gov/EPIC/api/natural/all?api_key=DEMO_KEY
-    # https://api.nasa.gov/EPIC/archive/natural/2019/05/30/png/epic_1b_20190530011359.png?api_key=DEMO_KEY
-    # https://api.nasa.gov/EPIC/archive/natural/2021/11/9/png/epic_1b_20211109003633.png?api_key=JeEPjlcdVBTySj5MLqveOcJf8HwrcXmdtdrqNsxe
-
     request_url_metadata = f'{config["API_NASA_EPIC_URL"]}/api/natural/'
     request_url_images = f'{config["API_NASA_EPIC_URL"]}/archive/natural'
     request_parameters = {
@@ -108,6 +103,10 @@ def download_image(image_url,
 
     with open(f'{image_path_to_save}/{image_name}', 'wb') as file:
         file.write(response.content)
+
+
+def publish_images_to_telegram_chat():
+    pass
 
 
 if __name__ == '__main__':
