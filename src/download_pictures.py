@@ -1,7 +1,7 @@
 from collections import defaultdict
 from os.path import split
 from pathlib import Path
-from urllib.parse import unquote, urlsplit
+from urllib.parse import unquote, urlsplit, urlunsplit
 import requests
 from dotenv import dotenv_values
 from datetime import datetime
@@ -32,21 +32,26 @@ def fetch_nasa_epic_images():
     response.raise_for_status()
     recent_images_metadata = response.json()
 
-    images_grouped_by_date = defaultdict(list)
-
+    images = defaultdict(list)
     for image_metadata in recent_images_metadata:
-        image = image_metadata['image']
+        image_name = image_metadata['image']
 
         image_date = get_datetime_from_string(image_metadata['date'])
         image_date = (f'{image_date.year}/'
                       f'{image_date.strftime("%m")}/'
                       f'{image_date.strftime("%d")}'
                       )
-        request_url = f'{request_url_images}/{image_date}/png/{image}.png'
-        image_date = image_date.replace('/', '-')
-        images_grouped_by_date[image_date].append(request_url)
 
-    return images_grouped_by_date
+        image_url = urlsplit(f'{request_url_images}/{image_date}/png/{image_name}.png')
+        image_url = image_url._replace(query=f'api_key={secrets["NASA_API_KEY"]}')
+
+        images[image_name] = {
+            'image_date': image_metadata['date'],
+            'image_caption': image_metadata['caption'],
+            'image_url': urlunsplit(image_url),
+        }
+
+    return images
 
 
 def fetch_nasa_pictures_of_the_day(images_count=20):
@@ -59,14 +64,22 @@ def fetch_nasa_pictures_of_the_day(images_count=20):
     response = requests.get(requests_url, params=request_parameters)
     response.raise_for_status()
 
-    images = response.json()
+    response_images = response.json()
 
-    images_grouped_by_date = defaultdict(list)
-    for image in images:
-        if image['media_type'] == 'image':
-            images_grouped_by_date[image['date']] = image['url']
+    images = defaultdict(list)
+    for image in response_images:
+        image_type = image['media_type']
 
-    return images_grouped_by_date
+        if image_type == 'image':
+            image_url = image['url']
+            image_name = get_filename_from_url(image_url)
+            images[image_name] = {
+                'image_date': image['date'],
+                'image_caption': image['title'],
+                'image_url': image_url,
+            }
+
+    return images
 
 
 def fetch_spacex_latest_launch_images():
@@ -76,17 +89,28 @@ def fetch_spacex_latest_launch_images():
     response.raise_for_status()
 
     launches = response.json()
-    latest_launch_images = defaultdict(list)
+    images = defaultdict(list)
+    image_urls = []
 
     is_latest_launch_images = False
     for launch in reversed(launches):
+        image_name = ''
         for image in launch['links']['flickr_images']:
-            latest_launch_images[launch['flight_number']].append(image)
+            image_name = get_filename_from_url(image)
+            image_urls.append(image)
             is_latest_launch_images = True
+        if image_name:
+            images[image_name] = {
+                'image_date': launch['launch_date_utc'],
+                'image_caption': f'{launch["mission_name"]} - {launch["details"]}',
+                'image_urls': image_urls,
+                'image_group': True,
+            }
+
         if is_latest_launch_images:
             break
 
-    return latest_launch_images
+    return images
 
 
 def download_image(image_url,
