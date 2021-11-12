@@ -1,5 +1,5 @@
 from collections import defaultdict
-from os.path import split,
+from os.path import split
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 import requests
