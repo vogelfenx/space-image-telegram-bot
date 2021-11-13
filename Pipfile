@@ -7,6 +7,8 @@ name = "pypi"
 requests = "*"
 pep8 = "*"
 autopep8 = "*"
+python-dotenv = "*"
+python-telegram-bot = "*"
 
 [dev-packages]
 autopep8 = "*"
