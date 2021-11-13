@@ -216,4 +216,4 @@ if __name__ == '__main__':
             print('Something went wrong. Error: ', exception)
             exit(1)
 
-        sleep(int(config['image_publishing_interval']))
+        sleep(int(config['image_publishing_interval_seconds']))

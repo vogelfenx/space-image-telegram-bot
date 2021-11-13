@@ -44,7 +44,7 @@ def main():
                 services.publish_image_to_chat(chat_id, image_url, caption=caption)
             sleep(4)  # avoid limitation - max 20 messages per minute per group
 
-        publishing_interval = int(config['image_publishing_interval'])
+        publishing_interval = int(config['image_publishing_interval_seconds'])
         print('next posting at', datetime.now() + timedelta(seconds=publishing_interval))
         sleep(publishing_interval)
 
