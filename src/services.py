@@ -20,12 +20,6 @@ images_dir_path = config['images_dir_path']
 bot = telegram.Bot(token=secrets['TELEGRAM_BOT_TOKEN'])
 
 
-def chunks(lst, n):
-    """Yield successive n-sized chunks from lst."""
-    for i in range(0, len(lst), n):
-        yield lst[i:i + n]
-
-
 def get_datetime_from_string(date):
     return datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
 
