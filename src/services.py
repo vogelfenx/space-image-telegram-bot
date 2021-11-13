@@ -1,13 +1,29 @@
+import shutil
 from collections import defaultdict
+from datetime import datetime
+from os import listdir
 from os.path import split
 from pathlib import Path
+from time import sleep
 from urllib.parse import unquote, urlsplit, urlunsplit
+
 import requests
+import telegram
 from dotenv import dotenv_values
-from datetime import datetime
+from telegram import InputMediaPhoto
 
 config = dotenv_values(".config")
 secrets = dotenv_values(".secrets")
+
+images_dir_path = config['images_dir_path']
+
+bot = telegram.Bot(token=secrets['TELEGRAM_BOT_TOKEN'])
+
+
+def chunks(lst, n):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
 
 
 def get_datetime_from_string(date):
@@ -21,7 +37,7 @@ def get_filename_from_url(url):
     return file_name
 
 
-def fetch_nasa_epic_images():
+def fetch_latest_nasa_epic_images():
     request_url_metadata = f'{config["API_NASA_EPIC_URL"]}/api/natural/'
     request_url_images = f'{config["API_NASA_EPIC_URL"]}/archive/natural'
     request_parameters = {
@@ -103,8 +119,7 @@ def fetch_spacex_latest_launch_images():
             images[image_name] = {
                 'image_date': launch['launch_date_utc'],
                 'image_caption': f'{launch["mission_name"]} - {launch["details"]}',
-                'image_urls': image_urls,
-                'image_group': True,
+                'image_url': image_urls,
             }
 
         if is_latest_launch_images:
@@ -114,47 +129,91 @@ def fetch_spacex_latest_launch_images():
 
 
 def download_image(image_url,
-                   image_path_to_save='data/images',
-                   image_prefix='',
+                   image_path_to_save=images_dir_path,
+                   image_name='',
                    parameters={}):
 
     response = requests.get(image_url, params=parameters)
     response.raise_for_status()
 
-    Path(image_path_to_save).mkdir(parents=True, exist_ok=True)
-
-    image_name = f'{image_prefix}_{get_filename_from_url(image_url)}'
+    if not image_name:
+        image_name = f'{get_filename_from_url(image_url)}'
 
     with open(f'{image_path_to_save}/{image_name}', 'wb') as file:
         file.write(response.content)
 
 
-def publish_images_to_telegram_chat():
-    pass
+def publish_images_group_to_chat(chat_id, images,
+                                 caption='', chunk_size=9):
+    """Publish group of images to telegram chat.
+    Before sending the images, the function divide list of images into chunks,
+    when max size of 9 exceeded, to avoid telegram api limitation
+    of send_media_group() - max chunk size 9 & min 2 pieces.
+    """
+
+    chunks = [images[i:i + chunk_size] for i in range(0, len(images), chunk_size)]
+
+    if caption:
+        bot.send_message(chat_id=chat_id, text=caption)
+
+    for chunk in chunks:
+        if len(chunk) > 1:
+            chunk = [InputMediaPhoto(media=file) for file in chunk]
+            bot.send_media_group(chat_id, media=chunk)
+            sleep(60*chunk_size/20)  # max messages per minute per group = 20
+        else:
+            bot.send_photo(chat_id, chunk[0])
+
+
+def publish_image_to_chat(chat_id, image, caption=''):
+    image = image
+    bot.send_photo(chat_id, image, caption)
 
 
 if __name__ == '__main__':
+    chat_id = config['telegram_chat_id']
 
-    try:
-        latest_launch_images = fetch_spacex_latest_launch_images()
-        for launch_number, launch_images in latest_launch_images.items():
-            for launch_image in launch_images:
-                download_image(launch_image,
-                               image_prefix=launch_number,
-                               image_path_to_save=config['spacex_images_dir_path'])
+    sended_images = []
+    while True:
+        # fetch images from apis
+        try:
+            spacex_images = fetch_spacex_latest_launch_images()
+            nasa_apod_images = fetch_nasa_pictures_of_the_day(images_count=2)
+            nasa_epic_images = fetch_latest_nasa_epic_images()
+        except Exception as exception:
+            print('Something went wrong. Error:', exception)
+            exit(1)
 
-        nasa_images = fetch_nasa_pictures_of_the_day()
-        for image_date, image in nasa_images.items():
-            download_image(image,
-                           image_prefix=image_date,
-                           image_path_to_save=config['nasa_images_dir_path'])
+        fetched_images = {**spacex_images,
+                          **nasa_apod_images,
+                          **nasa_epic_images}
 
-        nasa_epic_images = fetch_nasa_epic_images()
-        for image_date, images in nasa_epic_images.items():
-            for image in images:
-                download_image(image,
-                               image_prefix=image_date,
-                               image_path_to_save=f'{config["nasa_images_dir_path"]}/epic',
-                               parameters={'api_key': secrets["NASA_API_KEY"], })
-    except Exception as exception:
-        print('Что-то пошло не так, ошибка:', exception)
+        # filter images that were already posted
+        fetched_images = {image_name: image for (image_name, image) in fetched_images.items()
+                          if image_name not in sended_images}
+        sended_images += [image for image in fetched_images.keys()]
+
+        # download fetched images into specified directory
+        shutil.rmtree(images_dir_path, ignore_errors=True)
+        Path(images_dir_path).mkdir(parents=True, exist_ok=True)
+
+        for image_name, image in fetched_images.items():
+            image_url = image['image_url']
+            if type(image_url) is list:
+                for image in image_url:
+                    download_image(image)
+            else:
+                download_image(image_url)
+
+        # publish retrieved images to telegram channel
+        images = listdir(images_dir_path)
+        images = [f'{images_dir_path}/{image}' for image in images]
+        images = [open(image, 'rb') for image in images]
+
+        try:
+            publish_images_group_to_chat(chat_id, images, chunk_size=2)
+        except Exception as exception:
+            print('Something went wrong. Error: ', exception)
+            exit(1)
+
+        sleep(int(config['image_publishing_interval']))
