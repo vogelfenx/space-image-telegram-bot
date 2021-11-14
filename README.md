@@ -1,21 +1,25 @@
 # Telegram bot for posting space images to telegram channel  
 
-This project implemented a module to fetch & publish space images to telegram channel using Telegram Bot API.
+This project implements a module to fetch & publish space images to telegram channel using Telegram Bot API.
 The theme of the images is all about space and the universe. 
 The images are fetched from different sources:
   - [r/SpaceX API](https://docs.spacexdata.com/)
   - [NASA API](https://api.nasa.gov/)
 
+This module fetches images with meta information such as date and description, downloads them and directly posts it to your channel.  
+The image publication appears with user defined interval - by default once in 24 hours.  
+The images showed (downloaded) once, won't be published again.  
+
 ## First steps
 1. Clone / download the repository
-2. Read install and configuration steps
-3. Read user manual. 
+2. Read installation and configuration steps below
+3. Read user manual
 
 ## How to install & configure
 1. Install Python3 and project dependencies  
     Python3 should be already installed.   
     
-    The project uses Pipenv tool, that automatically creates a virtual environment and install all project dependencies.  
+    The project uses Pipenv tool, that automatically creates a virtual environment and installs all project dependencies.  
     Please refer to Pipenv [documentation](https://pypi.org/project/pipenv/) to install it.
 
     When Pipenv is installed, use the following command to create virtual environment and install dependencies:
@@ -32,7 +36,7 @@ The images are fetched from different sources:
 
     Please read the official [documentation](https://core.telegram.org/bots#3-how-do-i-create-a-bot) in order to create a bot using BotFather.
 
-    Once you've created a bot and received your authentication token, add the bot to your channel and make it an administrator. Afterward the channel id should be placed in configuration file ``.config``:
+    Once you've created a bot and received your authentication token, add the bot to your channel and make it an administrator. Afterwards the channel id should be placed in configuration file ``.config``:
     ```
     ...
     telegram_chat_id='@your_channel_id'
@@ -46,8 +50,8 @@ The images are fetched from different sources:
     ```
 
 3. Generate NASA API key
-    This module works with NASA API, which requires a API key.  
-    To generate a API key follow the instructions in the official NASA documentation [page](https://api.nasa.gov/).
+    This module works with NASA API, which requires an API key.  
+    To generate an API key follow the instructions in the official NASA documentation [page](https://api.nasa.gov/).
 
     Finally, place the key in the `.secrets` file like:
     ```
@@ -59,19 +63,11 @@ The images are fetched from different sources:
     ```
     python3 main.py  
     ```
-    This module fetches images with meta information such as date, description and directly posts it to your channel.
 
-2. Another configurations:  
+2. Possible user configurations:  
     Use the configuration file `.config` to configure more precise settings. 
 
-    The first part of the file specifies the API root URLs and should not be changed or changed carefully. 
-    ```
-    API_SPACEX_URL=https://api.spacexdata.com/v3
-    API_NASA_URL=https://api.nasa.gov/planetary
-    API_NASA_EPIC_URL=https://api.nasa.gov/EPIC
-    ```
-
-    The rest of the file is used to configure settings such as the location to save images, the publishing interval time, and the channel ID.
+    The file is used to configure settings such as the location to save images, the publishing interval time, and the channel ID:
 
     ````
     images_dir_path=data/images
