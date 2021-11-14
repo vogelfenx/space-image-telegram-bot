@@ -12,3 +12,7 @@ def get_filename_from_url(url):
     path = unquote(path)
     file_name = os.path.split(path)[1]
     return file_name
+
+
+def remove_extension_from_filename(filename):
+    return os.path.splitext(filename)[0]
