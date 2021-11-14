@@ -7,7 +7,7 @@ from common.utilities import get_datetime_from_string, get_filename_from_url
 
 
 def fetch_pictures_of_the_day(images_count=20):
-    requests_url = f'{settings.API_SPACEX_URL}/apod'
+    requests_url = f'{settings.API_NASA_URL}/apod'
 
     request_parameters = {
         'api_key': settings.NASA_API_KEY,
