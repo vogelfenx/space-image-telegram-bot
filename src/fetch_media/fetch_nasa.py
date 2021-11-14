@@ -2,16 +2,15 @@ from collections import defaultdict
 from urllib.parse import urlsplit, urlunsplit
 
 import requests
-
-from common.settings import config, secrets
+from common import settings
 from common.utilities import get_datetime_from_string, get_filename_from_url
 
 
-def fetch_nasa_pictures_of_the_day(images_count=20):
-    requests_url = f'{config["API_NASA_URL"]}/apod'
+def fetch_pictures_of_the_day(images_count=20):
+    requests_url = f'{settings.API_SPACEX_URL}/apod'
 
     request_parameters = {
-        'api_key': secrets["NASA_API_KEY"],
+        'api_key': settings.NASA_API_KEY,
         'count': images_count,
     }
     response = requests.get(requests_url, params=request_parameters)
@@ -35,11 +34,11 @@ def fetch_nasa_pictures_of_the_day(images_count=20):
     return images
 
 
-def fetch_latest_nasa_epic_images():
-    request_url_metadata = f'{config["API_NASA_EPIC_URL"]}/api/natural/'
-    request_url_images = f'{config["API_NASA_EPIC_URL"]}/archive/natural'
+def fetch_latest_epic_images():
+    request_url_metadata = f'{settings.API_NASA_EPIC_URL}/api/natural/'
+    request_url_images = f'{settings.API_NASA_EPIC_URL}/archive/natural'
     request_parameters = {
-        'api_key': secrets["NASA_API_KEY"],
+        'api_key': settings.NASA_API_KEY,
     }
 
     response = requests.get(request_url_metadata, params=request_parameters)
@@ -57,7 +56,7 @@ def fetch_latest_nasa_epic_images():
                       )
 
         image_url = urlsplit(f'{request_url_images}/{image_date}/png/{image_name}.png')
-        image_url = image_url._replace(query=f'api_key={secrets["NASA_API_KEY"]}')
+        image_url = image_url._replace(query=f'api_key={settings.NASA_API_KEY}')
 
         images[image_name] = {
             'image_date': image_metadata['date'],

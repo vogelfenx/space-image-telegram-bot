@@ -1,13 +1,12 @@
 from collections import defaultdict
 
 import requests
-
-from common.settings import config
+from common import settings
 from common.utilities import get_filename_from_url
 
 
-def fetch_spacex_latest_launch_images():
-    request_url = f'{config["API_SPACEX_URL"]}/launches/'
+def fetch_latest_launch_images():
+    request_url = f'{settings.API_SPACEX_URL}/launches/'
 
     response = requests.get(request_url)
     response.raise_for_status()

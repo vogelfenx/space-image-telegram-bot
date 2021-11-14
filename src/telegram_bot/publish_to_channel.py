@@ -1,14 +1,13 @@
 from time import sleep
 
+from common import settings
 from telegram import Bot, InputMediaPhoto
 
-from common.settings import secrets
-
-bot = Bot(token=secrets['TELEGRAM_BOT_TOKEN'])
+bot = Bot(token=settings.TELEGRAM_BOT_TOKEN)
 
 
-def publish_images_group_to_chat(chat_id, images,
-                                 caption='', chunk_size=9):
+def publish_images_group(chat_id, images,
+                         caption='', chunk_size=9):
     """Publish group of images to telegram chat.
     Before sending the images, the function divide list of images into chunks,
     when max size of 9 exceeded, to avoid telegram api limitation
@@ -29,6 +28,6 @@ def publish_images_group_to_chat(chat_id, images,
             bot.send_photo(chat_id, chunk[0])
 
 
-def publish_image_to_chat(chat_id, image, caption=''):
+def publish_image(chat_id, image, caption=''):
     image = image
     bot.send_photo(chat_id, image, caption)

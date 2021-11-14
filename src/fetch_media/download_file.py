@@ -1,11 +1,10 @@
 import requests
-
-from common.settings import config
+from common import settings
 from common.utilities import get_filename_from_url
 
 
 def download_image(image_url,
-                   image_path_to_save=config['images_dir_path'],
+                   image_path_to_save=settings.images_dir_path,
                    image_name='',
                    parameters={}):
 
