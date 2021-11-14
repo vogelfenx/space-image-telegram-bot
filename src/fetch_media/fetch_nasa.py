@@ -1,9 +1,11 @@
+import os.path
 from collections import defaultdict
 from urllib.parse import urlsplit, urlunsplit
 
 import requests
 from common import settings
-from common.utilities import get_datetime_from_string, get_filename_from_url
+from common.utilities import (get_datetime_from_string, get_filename_from_url,
+                              remove_extension_from_filename)
 
 
 def fetch_pictures_of_the_day(images_count=20):
@@ -25,6 +27,7 @@ def fetch_pictures_of_the_day(images_count=20):
         if image_type == 'image':
             image_url = image['url']
             image_name = get_filename_from_url(image_url)
+            image_name = remove_extension_from_filename(image_name)
             images[image_name] = {
                 'image_date': image['date'],
                 'image_caption': image['title'],

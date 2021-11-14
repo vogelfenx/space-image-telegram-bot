@@ -1,8 +1,10 @@
+import os.path
 from collections import defaultdict
 
 import requests
 from common import settings
-from common.utilities import get_filename_from_url
+from common.utilities import (get_filename_from_url,
+                              remove_extension_from_filename)
 
 
 def fetch_latest_launch_images():
@@ -13,23 +15,20 @@ def fetch_latest_launch_images():
 
     launches = response.json()
     images = defaultdict(list)
-    image_urls = []
 
-    is_latest_launch_images = False
+    is_latest_launch_with_images = False
     for launch in reversed(launches):
         image_name = ''
         for image in launch['links']['flickr_images']:
             image_name = get_filename_from_url(image)
-            image_urls.append(image)
-            is_latest_launch_images = True
-        if image_name:
+            image_name = remove_extension_from_filename(image_name)
             images[image_name] = {
                 'image_date': launch['launch_date_utc'],
-                'image_caption': f'{launch["mission_name"]} - {launch["details"]}',
-                'image_url': image_urls,
+                'image_caption': f'Mission: {launch["mission_name"]}',
+                'image_url': image,
             }
-
-        if is_latest_launch_images:
+            is_latest_launch_with_images = True
+        if is_latest_launch_with_images:
             break
 
     return images
