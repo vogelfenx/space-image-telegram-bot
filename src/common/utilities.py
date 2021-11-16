@@ -10,7 +10,7 @@ def get_datetime_from_string(date):
 def get_filename_from_url(url):
     path = urlsplit(url).path
     path = unquote(path)
-    file_name = os.path.split(path)[1]
+    file_name = os.path.basename(path)
     return file_name
 
 
