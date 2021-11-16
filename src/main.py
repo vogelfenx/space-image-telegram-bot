@@ -29,7 +29,6 @@ def filter_images(fetched_images):
     downloaded_images = []
     try:
         downloaded_image_names = os.listdir(settings.images_dir_path)
-        breakpoint()
         downloaded_image_names = [remove_extension_from_filename(image_name)
                              for image_name in downloaded_image_names]
     except FileNotFoundError:
