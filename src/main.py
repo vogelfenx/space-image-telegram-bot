@@ -23,9 +23,10 @@ def fetch_images():
             **nasa_epic_images}
 
 
-def filter_images(fetched_images, downloaded_images):
+def filter_images(fetched_images):
     """ Filter out the images that have already been downloaded.
     """
+    downloaded_images = []
     try:
         downloaded_images = os.listdir(settings.images_dir_path)
         downloaded_images = [remove_extension_from_filename(image)
@@ -65,7 +66,6 @@ def publish_images_to_channel(images):
 
 
 def main():
-    downloaded_images = []
     while True:
 
         try:
@@ -74,7 +74,7 @@ def main():
             print('Something went wrong. Error:', exception)
             exit(1)
 
-        filtered_images = filter_images(fetched_images, downloaded_images)
+        filtered_images = filter_images(fetched_images)
 
         download_images(filtered_images)
 
