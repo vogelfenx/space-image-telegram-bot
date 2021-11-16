@@ -29,5 +29,4 @@ def publish_images_group(chat_id, images,
 
 
 def publish_image(chat_id, image, caption=''):
-    image = image
     bot.send_photo(chat_id, image, caption)
