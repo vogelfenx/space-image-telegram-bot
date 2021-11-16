@@ -26,7 +26,7 @@ def fetch_images():
 def filter_images(fetched_images):
     """ Filter out the images that have already been downloaded.
     """
-    downloaded_images = []
+    downloaded_image_names = []
     try:
         downloaded_image_names = os.listdir(settings.images_dir_path)
         downloaded_image_names = [remove_extension_from_filename(image_name)
