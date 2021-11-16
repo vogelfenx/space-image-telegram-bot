@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import requests
 from common import settings
 from common.utilities import get_filename_from_url
@@ -14,5 +16,6 @@ def download_image(image_url,
     if not image_name:
         image_name = f'{get_filename_from_url(image_url)}'
 
-    with open(f'{image_path_to_save}/{image_name}', 'wb') as file:
+    image_path = Path(image_path_to_save) / image_name
+    with open(image_path, 'wb') as file:
         file.write(response.content)
