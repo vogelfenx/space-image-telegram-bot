@@ -39,7 +39,7 @@ The images showed (downloaded) once, won't be published again.
     Once you've created a bot and received your authentication token, add the bot to your channel and make it an administrator. Afterwards the channel id should be placed in configuration file ``.config``:
     ```
     ...
-    telegram_chat_id='@your_channel_id'
+    TELEGRAM_CHAT_ID='@your_channel_id'
     ...
     ```
 
@@ -70,9 +70,9 @@ The images showed (downloaded) once, won't be published again.
     The file is used to configure settings such as the location to save images, the publishing interval time, and the channel ID:
 
     ````
-    images_dir_path=data/images
-    telegram_chat_id='@your_channel_id'
-    image_publishing_interval_seconds=86400
+    IMAGES_DIR_PATH=data/images
+    TELEGRAM_CHAT_ID='@your_channel_id'
+    IMAGE_PUBLISHING_INTERVAL_SECONDS=86400
     ````
     You are free to change it!
 
