@@ -4,9 +4,9 @@ config = dotenv_values(".config")
 secrets = dotenv_values(".secrets")
 
 # .config settings
-image_publishing_interval_seconds = int(config['image_publishing_interval_seconds'])
-images_dir_path = config['images_dir_path']
-telegram_chat_id = config['telegram_chat_id']
+image_publishing_interval_seconds = int(config['IMAGE_PUBLISHING_INTERVAL_SECONDS'])
+images_dir_path = config['IMAGES_DIR_PATH']
+telegram_chat_id = config['TELEGRAM_CHAT_ID']
 
 # API urls
 API_SPACEX_URL = 'https://api.spacexdata.com/v3'
