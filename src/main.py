@@ -28,14 +28,15 @@ def filter_images(fetched_images):
     """
     downloaded_images = []
     try:
-        downloaded_images = os.listdir(settings.images_dir_path)
-        downloaded_images = [remove_extension_from_filename(image)
-                             for image in downloaded_images]
+        downloaded_image_names = os.listdir(settings.images_dir_path)
+        breakpoint()
+        downloaded_image_names = [remove_extension_from_filename(image_name)
+                             for image_name in downloaded_image_names]
     except FileNotFoundError:
         pass
 
     filtered_images = {image_name: image for (image_name, image) in fetched_images.items()
-                       if image_name not in downloaded_images}
+                       if image_name not in downloaded_image_names}
     return filtered_images
 
 
